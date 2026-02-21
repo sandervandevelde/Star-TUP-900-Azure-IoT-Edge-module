@@ -16,3 +16,10 @@
 }
 ```
 
+## Desired properties
+
+```
+{
+  "printerPath" : "/dev/usb/lp1"
+}
+```

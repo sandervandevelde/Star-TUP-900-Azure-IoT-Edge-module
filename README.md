@@ -21,7 +21,9 @@ Build and deployment of the module can be done via the Azure IoT Edge extension 
 The module takes one desired property:
 
 ```
-printerPath
+{
+  "printerPath" : "/dev/usb/lp1"
+}
 ```
 
 ### Direct method: PRint
@@ -85,13 +87,23 @@ Calling the print and status direct methods will also invoke sending telemetry m
 The status message looks like: 
 
 ```
-{"deviceId":"uno2372g01advantech","timestamp":"2026-02-21T22:52:14.0629631Z","status":"Status method called and status read.","paperCollected":true,"rollMissing":false}
+{
+  "deviceId":"uno2372g01advantech",
+  "timestamp":"2026-02-21T22:52:14.0629631Z",
+  "status":"Status method called and status read.",
+  "paperCollected":true,
+  "rollMissing":false
+}
 ```
 
 The print message looks like:
 
 ```
-{"deviceId":"uno2372g01advantech","timestamp":"2026-02-21T22:52:21.5847152Z","status":"Message deserialized and printed."}
+{
+  "deviceId":"uno2372g01advantech",
+  "timestamp":"2026-02-21T22:52:21.5847152Z",
+  "status":"Message deserialized and printed."
+}
 ```
 
 When an error occurs, this is shown in the message too.
@@ -101,8 +113,6 @@ When an error occurs, this is shown in the message too.
 The Star TUP 900 printer tested has a USB cable.
 
 Within Linux Ubuntu, it is accessible at port '/dev/usb/lp1'.
-
-
 
 The container create options needed in this example are:
 
