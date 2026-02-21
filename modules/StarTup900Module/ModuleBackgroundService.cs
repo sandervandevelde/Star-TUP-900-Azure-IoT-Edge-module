@@ -24,7 +24,6 @@ internal class ModuleBackgroundService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-
         _logger.LogInformation(@"                _     _             _       _                  _                       _                    _              ___   ___   ___  ");
         _logger.LogInformation(@"               | |   | |           (_)     | |                | |                     | |                  | |            / _ \ / _ \ / _ \ ");
         _logger.LogInformation(@"  _____   _____| | __| | ___ ______ _  ___ | |_ ______ ___  __| | __ _  ___ ______ ___| |_ __ _ _ __ ______| |_ _   _ _ _| (_) | | | | | | |");
@@ -37,7 +36,7 @@ internal class ModuleBackgroundService : BackgroundService
         _tup900Commands= new Tup900Commands{ PrinterPath = DefaultPrinterPath };
 
         _cancellationToken = cancellationToken;
-        MqttTransportSettings mqttSetting = new(TransportType.Mqtt_Tcp_Only);
+        MqttTransportSettings mqttSetting = new(TransportType.Mqtt_WebSocket_Only);
         ITransportSettings[] settings = { mqttSetting };
 
        _deviceId = Environment.GetEnvironmentVariable("IOTEDGE_DEVICEID");
@@ -80,6 +79,8 @@ internal class ModuleBackgroundService : BackgroundService
         _logger.LogInformation($"Module '{_deviceId}'-'{_moduleId}' initialized.");
 
         await LoadDeviceTwin();
+
+        _logger.LogInformation($"Device twin loaded.");
     }
 
     private async Task LoadDeviceTwin()
@@ -105,7 +106,7 @@ internal class ModuleBackgroundService : BackgroundService
                     _tup900Commands.PrinterPath = DefaultPrinterPath;
                 }
 
-                Console.WriteLine($"printerPath changed to {_tup900Commands.PrinterPath}");
+                _logger.LogInformation($"printerPath changed to {_tup900Commands.PrinterPath}");
 
                 reportedProperties["printerPath"] = _tup900Commands.PrinterPath;
             }
@@ -284,6 +285,8 @@ internal class ModuleBackgroundService : BackgroundService
 
     private async Task SendPrintMessage(PrintResponse printMessage)
     {
+        _logger.LogInformation($"~~~~~~~~~~~~~~~~~~~~~" );
+
         var jsonMessage = JsonSerializer.Serialize(printMessage);
 
         using (var message = new Message(Encoding.UTF8.GetBytes(jsonMessage)))
@@ -308,7 +311,7 @@ internal class ModuleBackgroundService : BackgroundService
 
     private async Task SendStatusMessage(StatusResponse statusMessage)
     {
-        _logger.LogInformation($"~~~~~~~~~~~~~~~~~~~~~" );
+        _logger.LogInformation($"....................." );
 
         var jsonMessage = JsonSerializer.Serialize(statusMessage);
 
@@ -330,8 +333,7 @@ internal class ModuleBackgroundService : BackgroundService
                 _logger.LogInformation($"Exception '{ex.Message}' while sending output message '{jsonMessage}'");
             }
         }
-    }    
-
+    }  
 }
 
 internal class PrintMethodRequest
