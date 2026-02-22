@@ -68,13 +68,32 @@ A 500 Status code is returned with the error is an exception occurs.
 
 This 500 status is seen when no access to the printer port was available.
 
+### Direct method: Recover
+
+You can execute a recovery via 'recover'.
+
+This call takes no parameters.
+
+The answer, when accepted will be:
+
+```
+{
+    "status": 200,
+    "payload": {
+        "deviceId": "uno2372g01advantech",
+        "timestamp": "2026-02-21T22:49:32.933633Z",
+        "status": "Recovered.",
+    }
+}
+```
+
 ### Direct method: Status
 
 You can ask for the current status via 'status'.
 
 This call takes no parameters.
 
-The answer ,when accepted, will be:
+The answer, when accepted will be:
 
 ```
 {

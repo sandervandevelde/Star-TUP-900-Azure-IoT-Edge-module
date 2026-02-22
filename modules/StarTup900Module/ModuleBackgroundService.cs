@@ -68,6 +68,13 @@ internal class ModuleBackgroundService : BackgroundService
         _logger.LogInformation($"Method 'printDemo' set (accepts JSON with 'name').");
 
         await _moduleClient.SetMethodHandlerAsync(
+            "recover",
+            recoverMethodCallBack,
+            _moduleClient);
+
+        _logger.LogInformation($"Method 'recover' set.");
+
+        await _moduleClient.SetMethodHandlerAsync(
             "status",
             statusMethodCallBack,
             _moduleClient);
@@ -283,6 +290,56 @@ internal class ModuleBackgroundService : BackgroundService
         return response;
     }
 
+   private async Task<MethodResponse> recoverMethodCallBack(MethodRequest methodRequest, object userContext)
+    {       
+        _logger.LogInformation($"+++++++++++++++++++++" );
+
+        var recoverResponse = new RecoverResponse
+        {
+            deviceId = _deviceId,
+            timestamp = DateTime.UtcNow, 
+            status = "Recovered." 
+        };
+        
+        // print the message received from the method call
+
+        var responseCode = 200;
+
+        try
+        {
+            _logger.LogInformation($"Recover method called at {DateTime.UtcNow}.");
+
+            //// Recover
+
+            string toPrint1 = $"Recovery execution at {DateTime.UtcNow}";
+
+            using (FileStream fs = new FileStream(_tup900Commands.PrinterPath, FileMode.Open, FileAccess.Write))
+            {
+                fs.Write(_tup900Commands.ExecuteRecoveryCommand, 0, _tup900Commands.ExecuteRecoveryCommand.Length);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Exception '{ex.Message}' while processing Recover method call.");
+            responseCode = 500;
+            recoverResponse.status = $"Failed to execute recovery ({ex.Message})";
+        }
+
+        // Send to the output queue when the message is printed or not
+
+        await SendRecoverMessage(recoverResponse);
+
+        // Send recover method response message
+
+        var json = JsonSerializer.Serialize(recoverResponse);
+        var response = new MethodResponse(Encoding.UTF8.GetBytes(json), responseCode);
+
+        _logger.LogInformation($"Recover method response '{json}' returned at {DateTime.UtcNow}.");
+
+        return response;
+    }
+
+
     private async Task SendPrintMessage(PrintResponse printMessage)
     {
         _logger.LogInformation($"~~~~~~~~~~~~~~~~~~~~~" );
@@ -300,6 +357,32 @@ internal class ModuleBackgroundService : BackgroundService
                 await _moduleClient!.SendEventAsync("output1", message);
 
                 _logger.LogInformation($"Print event message '{jsonMessage}' sent at {DateTime.UtcNow}.");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"Exception '{ex.Message}' while sending output message '{jsonMessage}'");
+            }
+        }
+    }    
+
+    private async Task SendRecoverMessage(RecoverResponse recoverMessage)
+    {
+        _logger.LogInformation($"~~~~~~~~~~~~~~~~~~~~~" );
+
+        var jsonMessage = JsonSerializer.Serialize(recoverMessage);
+
+        using (var message = new Message(Encoding.UTF8.GetBytes(jsonMessage)))
+        { 
+            // Set message body type and content encoding for routing using decoded body values.
+            message.ContentEncoding = "utf-8";
+            message.ContentType = "application/json";
+
+            try
+            {
+                await _moduleClient!.SendEventAsync("output1", message);
+
+                _logger.LogInformation($"Recover event message '{jsonMessage}' sent at {DateTime.UtcNow}.");
 
             }
             catch (Exception ex)
@@ -342,6 +425,13 @@ internal class PrintMethodRequest
 }
 
 internal class PrintResponse
+{
+    public required string deviceId { get; set; }
+    public DateTime timestamp { get; set; }
+    public required string status { get; set; }
+}
+
+internal class RecoverResponse
 {
     public required string deviceId { get; set; }
     public DateTime timestamp { get; set; }
