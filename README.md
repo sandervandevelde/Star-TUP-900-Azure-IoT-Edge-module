@@ -14,6 +14,11 @@ A demonstration print looks like:
 
 ## Deployment
 
+The architecture looks like:
+
+<img width="1712" height="1027" alt="image" src="https://github.com/user-attachments/assets/2120471e-458c-4aed-9951-c4b1106e51f3" />
+
+
 The module as-is can be taken from my Docker hub: 'svelde/iot-edge-star-tup900'.
 
 This version is intended for Ubuntu on an Intel processor.
