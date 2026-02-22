@@ -39,8 +39,8 @@ internal class ModuleBackgroundService : BackgroundService
         MqttTransportSettings mqttSetting = new(TransportType.Mqtt_WebSocket_Only);
         ITransportSettings[] settings = { mqttSetting };
 
-       _deviceId = Environment.GetEnvironmentVariable("IOTEDGE_DEVICEID");
-       _moduleId = Environment.GetEnvironmentVariable("IOTEDGE_MODULEID");
+       _deviceId = Environment.GetEnvironmentVariable("IOTEDGE_DEVICEID") ?? "UnknownDevice";
+       _moduleId = Environment.GetEnvironmentVariable("IOTEDGE_MODULEID") ?? "UnknownModule";
 
         // Open a connection to the Edge runtime
         _moduleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
@@ -61,11 +61,11 @@ internal class ModuleBackgroundService : BackgroundService
         _logger.LogInformation($"Desired properties set (accepts property 'printerPath').");
 
         await _moduleClient.SetMethodHandlerAsync(
-            "print",
-            printMethodCallBack,
+            "printDemo",
+            printDemoMethodCallBack,
             _moduleClient);
 
-        _logger.LogInformation($"Method 'print' set (accepts JSON with 'name').");
+        _logger.LogInformation($"Method 'printDemo' set (accepts JSON with 'name').");
 
         await _moduleClient.SetMethodHandlerAsync(
             "status",
@@ -89,7 +89,7 @@ internal class ModuleBackgroundService : BackgroundService
 
         try
         {
-            var twin = await _moduleClient.GetTwinAsync(_cancellationToken);
+            var twin = await _moduleClient!.GetTwinAsync(_cancellationToken);
 
             _logger.LogInformation($"Device Twin for module '{_moduleId}' retrieved with desired properties: {twin.Properties.Desired.ToJson()}");
 
@@ -159,7 +159,7 @@ internal class ModuleBackgroundService : BackgroundService
 
                     // Presenter Paper, Ninth byte
                     var paperTaken = ((asbBuffer[8] & 0x04) == 0x00) && ((asbBuffer[8] & 0x02) == 0x00);
-                    _logger.LogInformation(paperTaken ? "Paper Taken or Collected" : "Paper still in slot");
+                    _logger.LogInformation(paperTaken ? "Paper Taken or Recovered" : "Paper still in presenter");
                     statusResponse.paperCollected = paperTaken;
 
                     // Paper role missing, sixth byte
@@ -194,7 +194,7 @@ internal class ModuleBackgroundService : BackgroundService
         return response;
     }
 
-    private async Task<MethodResponse> printMethodCallBack(MethodRequest methodRequest, object userContext)
+    private async Task<MethodResponse> printDemoMethodCallBack(MethodRequest methodRequest, object userContext)
     {       
         _logger.LogInformation($"+++++++++++++++++++++" );
 
@@ -215,11 +215,11 @@ internal class ModuleBackgroundService : BackgroundService
 
             var printMethodRequest = JsonSerializer.Deserialize<PrintMethodRequest>(messageDate);
 
-            _logger.LogInformation($"Print method called with message '{messageDate}' at {DateTime.UtcNow}.");
+            _logger.LogInformation($"PrintDemo method called with message '{messageDate}' at {DateTime.UtcNow}.");
 
-            //// Print
+            //// Print Demo
 
-            string toPrint1 = $"Hello {printMethodRequest.name}, welcome to this Azure IoT Edge C# module running on Ubuntu!";
+            string toPrint1 = $"Hello {printMethodRequest!.name}, welcome to this Azure IoT Edge C# module running on Ubuntu!";
             byte[] toPrint1Buffer = System.Text.Encoding.ASCII.GetBytes(toPrint1);
 
             using (FileStream fs = new FileStream(_tup900Commands.PrinterPath, FileMode.Open, FileAccess.Write))
@@ -264,9 +264,9 @@ internal class ModuleBackgroundService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Exception '{ex.Message}' while processing print method call.");
+            _logger.LogError($"Exception '{ex.Message}' while processing Print Demo method call.");
             responseCode = 500;
-            printResponse.status = $"Failed to print message ({ex.Message})";
+            printResponse.status = $"Failed to print demo message ({ex.Message})";
         }
 
         // Send to the output queue when the message is printed or not
@@ -297,7 +297,7 @@ internal class ModuleBackgroundService : BackgroundService
 
             try
             {
-                await _moduleClient.SendEventAsync("output1", message);
+                await _moduleClient!.SendEventAsync("output1", message);
 
                 _logger.LogInformation($"Print event message '{jsonMessage}' sent at {DateTime.UtcNow}.");
 
@@ -323,7 +323,7 @@ internal class ModuleBackgroundService : BackgroundService
 
             try
             {
-                await _moduleClient.SendEventAsync("output1", message);
+                await _moduleClient!.SendEventAsync("output1", message);
 
                 _logger.LogInformation($"Status event message '{jsonMessage}' sent at {DateTime.UtcNow}.");
 

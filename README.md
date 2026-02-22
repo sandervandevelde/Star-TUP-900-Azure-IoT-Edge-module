@@ -26,9 +26,9 @@ The module takes one desired property:
 }
 ```
 
-### Direct method: PRint
+### Direct method: Print Demo
 
-You can print a demonstration text via: 'print'.
+You can print a demonstration text via: 'printDemo'.
 
 This takes one parameter via JSON:
 
@@ -38,7 +38,7 @@ This takes one parameter via JSON:
 }
 ```
 
-If the message is received and the print is printed, the answer is:
+If the message is received and the print demo is printed, the answer would look like:
 
 ```
 {
