@@ -4,6 +4,10 @@ Azure IoT Edge module demonstration for a STAR TUP 900 kiosk thermal printer.
 
 NOTE: THIS MODULE IS A DEMONSTRATION. DO NOT USE THIS FOR PRODUCTION!
 
+## Blog post
+
+I you want to understand how to deploy this module on Azure IoT Edge, check out this [blog post](https://sandervandevelde.wordpress.com/2026/02/22/a-second-life-star-tup920-on-azure-iot-edge/).
+
 ## Deployment
 
 The module as-is can be taken from my Docker hub: 'svelde/iot-edge-star-tup900'.
