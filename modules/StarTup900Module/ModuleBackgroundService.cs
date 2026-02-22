@@ -393,7 +393,7 @@ internal class Tup900Commands
     // Print 'MVP' as Code128 barcode -> 1B 62 n1=06=Code128 n2=02=underbar n3=02=modeselect n2=A0=dotcount, D1=4D=M, D2=56=V, D3=50=P, 1E
     public byte[] PrintCode128Command {get;set;} = new byte[] { 0x1b, 0x62, 0x06, 0x02, 0x02, 0xA0, 0x4d , 0x56, 0x50, 0x1e };
 
-    // Set presenter paper automatic recovery function and automatic recovery time (64/2 = 32 seconds in this example) (ESC RS 1 n m - Set presenter paper automatic recovery function and automatic recovery time)
+    // Set presenter paper automatic recovery function and automatic recovery time (64/2 = 32 seconds in this example, where 64 = 0x40) (ESC RS 1 n m - Set presenter paper automatic recovery function and automatic recovery time)
     public byte[] SetRecoveryTimespanCommand {get;set;} = new byte[] { 0x1b, 0x16, 0x31, 0x40 };
 
     // Automatic recovery by presenter = Direct Execution
