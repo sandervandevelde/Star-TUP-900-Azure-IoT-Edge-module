@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StarTup900Module")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+68572a74a6f3a166115793157fe73812781d8021")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0014d76fb6103cc1c7217fefd1501474d65ec16f")]
 [assembly: System.Reflection.AssemblyProductAttribute("StarTup900Module")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StarTup900Module")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
