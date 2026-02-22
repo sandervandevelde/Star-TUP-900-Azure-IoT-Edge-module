@@ -148,7 +148,7 @@ Worst case, the container must be restarted to pick up the right access rights a
 
 Here, the access rights are elevated after booting the machine.
 
-I created this '/etc/rc.local' file with this content:
+I created this '/etc/rc.local' file with this content via 'sudo nano /etc/rc.local':
 
 ```
 #!/bin/bash
