@@ -8,6 +8,10 @@ NOTE: THIS MODULE IS A DEMONSTRATION. DO NOT USE THIS FOR PRODUCTION!
 
 I you want to understand how to deploy this module on Azure IoT Edge, check out this [blog post](https://sandervandevelde.wordpress.com/2026/02/22/a-second-life-star-tup920-on-azure-iot-edge/).
 
+A demonstration print looks like:
+
+<img width="607" height="656" alt="image" src="https://github.com/user-attachments/assets/a041bbea-e277-4980-b908-b0ae8d1525a6" />
+
 ## Deployment
 
 The module as-is can be taken from my Docker hub: 'svelde/iot-edge-star-tup900'.
