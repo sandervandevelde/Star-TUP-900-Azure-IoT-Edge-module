@@ -313,10 +313,50 @@ internal class ModuleBackgroundService : BackgroundService
 
             string toPrint1 = $"Recovery execution at {DateTime.UtcNow}";
 
-            using (FileStream fs = new FileStream(_tup900Commands.PrinterPath, FileMode.Open, FileAccess.Write))
+            var paperTaken = false;
+
+            var index = 0;
+
+            using (FileStream fs = new FileStream(_tup900Commands.PrinterPath, FileMode.Open, FileAccess.ReadWrite))
             {
-                fs.Write(_tup900Commands.ExecuteRecoveryCommand, 0, _tup900Commands.ExecuteRecoveryCommand.Length);
-            }
+                while (!paperTaken && index < 3)
+                {
+                    // 1. Enable Asb status monitoring
+                    fs.Write(_tup900Commands.EnableAsbStatusCommand, 0, _tup900Commands.EnableAsbStatusCommand.Length);
+                    fs.Flush();
+
+                    // 2. Read back the status byte
+                    // Note: You may need a small delay or a loop to wait for the printer to reply
+
+                    byte[] asbBuffer = new byte[10];
+                    int bytesRead = fs.Read(asbBuffer, 0, asbBuffer.Length);
+
+                    if (bytesRead > 0) 
+                    {
+                        // Presenter Paper, Ninth byte
+                        paperTaken = ((asbBuffer[8] & 0x04) == 0x00) && ((asbBuffer[8] & 0x02) == 0x00);
+                        if (!paperTaken)
+                        {
+                            // 3. Execute recovery command to let the presenter try to recover the paper
+                            fs.Write(_tup900Commands.ExecuteRecoveryCommand, 0, _tup900Commands.ExecuteRecoveryCommand.Length);
+                            fs.Flush();
+                        }
+                        else
+                        {
+                            paperTaken = true;
+                            _logger.LogInformation("Paper already taken, no need to execute recovery command");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation("No response from status request");
+                    }
+
+                    Thread.Sleep(2000); // Wait for 2 seconds before reading the status again to give the presenter time to recover the paper
+
+                    index++;
+                }
+            }                    
         }
         catch (Exception ex)
         {
@@ -486,7 +526,13 @@ internal class Tup900Commands
     // Set presenter paper automatic recovery function and automatic recovery time (64/2 = 32 seconds in this example, where 64 = 0x40) (ESC RS 1 n m - Set presenter paper automatic recovery function and automatic recovery time)
     public byte[] SetRecoveryTimespanCommand {get;set;} = new byte[] { 0x1b, 0x16, 0x31, 0x40 };
 
+    // Cancel presenter paper automatic recovery function
+    public byte[] CancelRecoveryTimespanCommand {get;set;} = new byte[] { 0x1b, 0x16, 0x31, 0x0 };
+
     // Automatic recovery by presenter = Direct Execution
+    // Note: This command will trigger the presenter to try to recover the paper by itself. 
+    // The status should be monitored to check if the recovery was successful or not.
+    // It's recommended executing this command a few times with some delay in between if the first execution doesn't work, as the presenter might need to try a few times to recover the paper successfully.
     public byte[] ExecuteRecoveryCommand {get;set;} = new byte[] { 0x1b, 0x16, 0x30, 0x0 };
 
     // Enable Presenter Status (ESC RS a n - Set status transmission conditions)
