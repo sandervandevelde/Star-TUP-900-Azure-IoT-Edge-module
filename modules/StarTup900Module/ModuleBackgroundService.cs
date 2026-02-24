@@ -67,6 +67,7 @@ internal class ModuleBackgroundService : BackgroundService
 
         _logger.LogInformation($"Method 'printDemo' set (accepts JSON with 'name').");
 
+        // experimental.
         await _moduleClient.SetMethodHandlerAsync(
             "recover",
             recoverMethodCallBack,
@@ -317,7 +318,7 @@ internal class ModuleBackgroundService : BackgroundService
 
             using (FileStream fs = new FileStream(_tup900Commands.PrinterPath, FileMode.Open, FileAccess.ReadWrite))
             {
-                while (!paperTaken && index < 3)
+                while (!paperTaken && index < 5)
                 {
                     // 1. Enable Asb status monitoring
                     fs.Write(_tup900Commands.EnableAsbStatusCommand, 0, _tup900Commands.EnableAsbStatusCommand.Length);
@@ -342,12 +343,14 @@ internal class ModuleBackgroundService : BackgroundService
                         else
                         {
                             paperTaken = true;
-                            _logger.LogInformation($"Paper already taken after {index} attempts, no need to execute recovery command");
+                            recoverResponse.status = $"Paper recovered after {index} attempts";
+                            _logger.LogInformation($"Paper recovered after {index} attempts");
                         }
                     }
                     else
                     {
-                        _logger.LogInformation("No response from status request");
+                        recoverResponse.status = $"No response from status request after {index} attempts";
+                        _logger.LogInformation($"No response from status request after {index} attempts");
                     }
 
                     Thread.Sleep(2000); // Wait for 2 seconds before reading the status again to give the presenter time to recover the paper
