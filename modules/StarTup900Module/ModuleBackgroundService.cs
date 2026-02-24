@@ -311,8 +311,6 @@ internal class ModuleBackgroundService : BackgroundService
 
             //// Recover
 
-            string toPrint1 = $"Recovery execution at {DateTime.UtcNow}";
-
             var paperTaken = false;
 
             var index = 0;
@@ -344,7 +342,7 @@ internal class ModuleBackgroundService : BackgroundService
                         else
                         {
                             paperTaken = true;
-                            _logger.LogInformation("Paper already taken, no need to execute recovery command");
+                            _logger.LogInformation($"Paper already taken after {index} attempts, no need to execute recovery command");
                         }
                     }
                     else
